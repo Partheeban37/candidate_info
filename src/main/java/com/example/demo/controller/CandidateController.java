@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/candidates")
+@CrossOrigin(origins = "http://localhost")
 public class CandidateController {
 
     private final CandidateRepository candidateRepository;
@@ -16,24 +17,28 @@ public class CandidateController {
         this.candidateRepository = candidateRepository;
     }
 
+    // Health check endpoint
     @GetMapping("/health")
     public String healthCheck() {
         return "OK";
     }
 
-    @PostMapping
+    // Create new candidate
+    @PostMapping("/create")
     public Candidate createCandidate(@RequestBody Candidate candidate) {
         return candidateRepository.save(candidate);
     }
 
-    @GetMapping
+    // Get all candidates
+    @GetMapping("/list")
     public List<Candidate> getCandidates() {
         return candidateRepository.findAll();
     }
 
-    @PutMapping("/{id}")
-    public Candidate updateCandidate(@PathVariable Long id, @RequestBody Candidate updatedCandidate) {
-        return candidateRepository.findById(id)
+    // Update candidate by ID (body must include id)
+    @PutMapping("/edit")
+    public Candidate updateCandidate(@RequestBody Candidate updatedCandidate) {
+        return candidateRepository.findById(updatedCandidate.getId())
                 .map(candidate -> {
                     candidate.setName(updatedCandidate.getName());
                     candidate.setEmail(updatedCandidate.getEmail());
@@ -43,7 +48,8 @@ public class CandidateController {
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
     }
 
-    @DeleteMapping("/{id}")
+    // Delete candidate by ID
+    @DeleteMapping("/delete/{id}")
     public void deleteCandidate(@PathVariable Long id) {
         candidateRepository.deleteById(id);
     }
